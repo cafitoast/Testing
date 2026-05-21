@@ -9,9 +9,10 @@ public class PlayerController : MonoBehaviour
     private float moveY;
     public float speed = 5f;
     public float jumpForce = 8f;
-    public float airMultiplier = 0.8f; 
+    public float airMultiplier = 5f; 
     public float dashForce = 5f;
-    public float dashCooldown = 0f;
+    public float dash = 1.0f;
+    private float NextDashTime = 2.0f;
     public Transform groundCheck;        
     public float groundDistance = 0.2f; 
     public LayerMask groundMask;         
@@ -37,8 +38,9 @@ public class PlayerController : MonoBehaviour
     }
     void OnDash()
     {
-        if(dashCooldown >= 0)
+        if(dash >= 0 && Time.time > NextDashTime)
         {
+            NextDashTime = dash + Time.time; 
             Vector3 dashDirection = orientation.forward * 300;
             if(dashDirection == Vector3.zero)
             {
