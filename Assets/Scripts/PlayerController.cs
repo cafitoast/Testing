@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;        
     public float groundDistance = 0.2f; 
     public LayerMask groundMask;         
-    private bool isGrounded;
+    public bool isGrounded;
     public Transform orientation; 
 
     void Start()
