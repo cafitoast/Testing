@@ -4,6 +4,10 @@
 TagManager:
   serializedVersion: 3
   tags:
+<<<<<<< Updated upstream
+=======
+  - CinemachineTarget
+>>>>>>> Stashed changes
   - Wall
   layers:
   - Default
