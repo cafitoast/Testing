@@ -4,10 +4,14 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public Climbing climbingScript;
     private Rigidbody rb;
     private float moveX;
     private float moveY;
-    public float speed = 5f;
+    private bool isSprinting;
+    public float baseSpeed = 5f;
+    public float sprintBonus = 5f;
+    private float currentSpeed;  
     public float jumpForce = 8f;
     public float airMultiplier = 5f; 
     public float dashForce = 5f;
@@ -22,6 +26,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        currentSpeed = baseSpeed;
     }
     void OnMove(InputValue value)
     {
@@ -36,32 +41,48 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(new Vector3(0f, jumpForce, 0f), ForceMode.Impulse);
         }
     }
-    void OnDash()
+void OnDash()
+{
+    if (dash >= 0 && Time.time > NextDashTime)
     {
-        if(dash >= 0 && Time.time > NextDashTime)
+        NextDashTime = dash + Time.time;
+
+        Vector3 dashDirection = orientation.forward;
+
+        if (dashDirection == Vector3.zero)
+            dashDirection = transform.forward; // safe fallback
+
+        rb.AddForce(dashDirection * 15, ForceMode.Impulse); // ForceMode.Impulse recommended here too
+    }
+}
+    void OnSprint()
+    {
+        if (Input.GetKey(KeyCode.LeftShift)) // while player holds shift he can sprint
         {
-            NextDashTime = dash + Time.time; 
-            Vector3 dashDirection = orientation.forward * 300;
-            if(dashDirection == Vector3.zero)
-            {
-                dashDirection = orientation.forward;
+            if(!isSprinting) 
+                {
+                currentSpeed += sprintBonus;
+                isSprinting = true; // right after we apply the double speed or whatever, we set the bool to true so it can't do it over and over again.
             }
-            rb.AddForce(dashDirection);
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift)) // as soon as he lets go, the bool turns false and the speed is reset
+        {
+            currentSpeed = baseSpeed;
+            isSprinting = false;
         }
     }
-    void FixedUpdate()
-    {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+void FixedUpdate()
+{
+    isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        Vector3 movement = orientation.forward * moveY + orientation.right * moveX;
+    // Don't fight the climbing script
+    if (climbingScript != null && climbingScript.climbing) return;
 
-        if (isGrounded)
-        {
-            rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
-        }
-        else
-        {
-            rb.MovePosition(rb.position + movement * speed * airMultiplier * Time.fixedDeltaTime);
-        }
-    }
+    Vector3 movement = orientation.forward * moveY + orientation.right * moveX;
+
+    if (isGrounded)
+        rb.MovePosition(rb.position + movement * currentSpeed * Time.fixedDeltaTime);
+    else
+        rb.MovePosition(rb.position + movement * currentSpeed * airMultiplier * Time.fixedDeltaTime);
+}   
 }

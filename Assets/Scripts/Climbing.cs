@@ -16,7 +16,7 @@ public class Climbing : MonoBehaviour
     private float climbTimer;
 
 
-    private bool climbing;
+    public bool climbing;
 
 
     // Detection
