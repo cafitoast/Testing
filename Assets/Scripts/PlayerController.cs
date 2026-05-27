@@ -4,29 +4,70 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public Climbing climbingScript;
     private Rigidbody rb;
-    private float moveX;
-    private float moveY;
-    private bool isSprinting;
-    public float baseSpeed = 5f;
-    public float sprintBonus = 5f;
-    private float currentSpeed;  
+    
+    [Header("Movement")] 
+    public float moveX;
+    public float moveY;
+    public float moveSpeed;
+    public float walkSpeed;
+    public float sprintSpeed;
+    public KeyCode sprintKey = KeyCode.LeftShift;
+    public float wallrunSpeed;
+    [Header("Jumping")] 
     public float jumpForce = 8f;
     public float airMultiplier = 5f; 
+    
+    [Header("Dashing")] 
     public float dashForce = 5f;
     public float dash = 1.0f;
     private float NextDashTime = 2.0f;
+    
+    [Header("Checking")] 
     public Transform groundCheck;        
     public float groundDistance = 0.2f; 
     public LayerMask groundMask;         
     public bool isGrounded;
     public Transform orientation; 
 
+    public MovementState state; 
+    public enum MovementState
+    {
+        walking, 
+        sprinting,
+        wallrunning,
+        air
+    }
+    public bool wallrunning; 
+    public bool climbing;
+    public bool climbingPossible;
+    void StateHandler()
+    {
+        //wall running
+        if (wallrunning)
+        {
+           state = MovementState.wallrunning; 
+           moveSpeed = wallrunSpeed; 
+        }
+        //sprinting 
+        else if(isGrounded && Input.GetKey(sprintKey))
+        {
+            state = MovementState.sprinting;
+            moveSpeed = sprintSpeed;
+        }
+        else if (isGrounded)
+        {
+            state = MovementState.walking;
+            moveSpeed = walkSpeed;
+        }
+        else
+        {
+            state = MovementState.air;
+        }
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        currentSpeed = baseSpeed;
     }
     void OnMove(InputValue value)
     {
@@ -52,37 +93,26 @@ void OnDash()
         if (dashDirection == Vector3.zero)
             dashDirection = transform.forward; // safe fallback
 
-        rb.AddForce(dashDirection * 15, ForceMode.Impulse); // ForceMode.Impulse recommended here too
+        rb.AddForce(dashDirection * dashForce, ForceMode.Impulse); // ForceMode.Impulse recommended here too
     }
 }
-    void OnSprint()
+    
+private void Update()
     {
-        if (Input.GetKey(KeyCode.LeftShift)) // while player holds shift he can sprint
-        {
-            if(!isSprinting) 
-                {
-                currentSpeed += sprintBonus;
-                isSprinting = true; // right after we apply the double speed or whatever, we set the bool to true so it can't do it over and over again.
-            }
-        }
-        if (Input.GetKeyUp(KeyCode.LeftShift)) // as soon as he lets go, the bool turns false and the speed is reset
-        {
-            currentSpeed = baseSpeed;
-            isSprinting = false;
-        }
+        StateHandler();
     }
+      
 void FixedUpdate()
 {
     isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-    // Don't fight the climbing script
-    if (climbingScript != null && climbingScript.climbing) return;
+    
+    if (climbing) return;
+    if (wallrunning) return;
 
     Vector3 movement = orientation.forward * moveY + orientation.right * moveX;
-
-    if (isGrounded)
-        rb.MovePosition(rb.position + movement * currentSpeed * Time.fixedDeltaTime);
-    else
-        rb.MovePosition(rb.position + movement * currentSpeed * airMultiplier * Time.fixedDeltaTime);
-}   
-}
+        if (isGrounded)
+            rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        else
+            rb.MovePosition(rb.position + movement * moveSpeed * airMultiplier * Time.fixedDeltaTime);
+        }   
+    }
