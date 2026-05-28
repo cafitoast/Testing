@@ -49,22 +49,16 @@ public class Climbing : MonoBehaviour
             ? Vector3.Angle(orientation.forward, -frontWallHit.normal)
             : 0f;
 
-        // Tell PlayerController whether climbing is geometrically possible this frame.
-        // WallRunning reads this to yield before it even tries to start.
+   
         pm.climbingPossible = wallFront && wallLookAngle < maxWallLookAngle;
 
-        // Reset climb stamina when grounded
+   
         if (pm.isGrounded)
             climbTimer = maxClimbTime;
     }
 
     private void StateMachine()
     {
-        // Wall-running takes priority over climbing only if already in that state
-        // and no climbable wall is directly ahead — handled by WallRunning yielding
-        // via pm.climbingPossible, so no extra guard needed here.
-
-        // Don't start or continue climbing while wall-running
         if (pm.wallrunning)
         {
             if (pm.climbing) StopClimbing();

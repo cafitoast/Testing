@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +32,11 @@ public class PlayerController : MonoBehaviour
     public Transform orientation; 
 
     public MovementState state; 
+    public TextMeshProUGUI timerText;
+
+	private float secondsCount;
+	private int minuteCount;
+	private int hourCount;
     public enum MovementState
     {
         walking, 
@@ -91,17 +97,28 @@ void OnDash()
         Vector3 dashDirection = orientation.forward;
 
         if (dashDirection == Vector3.zero)
-            dashDirection = transform.forward; // safe fallback
+            dashDirection = transform.forward; 
 
-        rb.AddForce(dashDirection * dashForce, ForceMode.Impulse); // ForceMode.Impulse recommended here too
+        rb.AddForce(dashDirection * dashForce, ForceMode.Impulse);
     }
 }
     
 private void Update()
     {
         StateHandler();
+        UpdateTimerUI();
     }
-      
+    public void UpdateTimerUI(){
+		secondsCount += Time.deltaTime;
+		timerText.text = hourCount +"h:"+ minuteCount +"m:"+(int)secondsCount + "s";
+		if(secondsCount >= 60){
+			minuteCount++;
+			secondsCount = 0;
+		}else if(minuteCount >= 60){
+			hourCount++;
+			minuteCount = 0;
+		}	
+	}
 void FixedUpdate()
 {
     isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
