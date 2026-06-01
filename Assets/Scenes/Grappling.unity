@@ -1508,10 +1508,14 @@ MonoBehaviour:
   sprintSpeed: 10
   sprintKey: 304
   wallrunSpeed: 6
-  jumpForce: 7
+  jumpForce: 10
   airMultiplier: 0.7
   dashForce: 5
   dash: 1
+  groundDrag: 5
+  airDrag: 0.5
+  wallrunDrag: 0
+  grapplingDrag: 0
   groundCheck: {fileID: 1998569346}
   groundDistance: 0.2
   groundMask:
@@ -1698,6 +1702,9 @@ MonoBehaviour:
   maxWallRunTime: 2
   wallCheckDistance: 1
   minJumpHeight: 2
+  wallJumpUpForce: 7
+  wallJumpSideForce: 12
+  exitMomentumMultiplier: 2
   orientation: {fileID: 2032536223}
 --- !u!114 &1054338082
 MonoBehaviour:
@@ -1717,7 +1724,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   lr: {fileID: 755709867}
-  maxGrappleDistance: 15
+  maxGrappleDistance: 13
   grappleDelayTime: 0.25
   overshootYAxis: 10
   grapplingCd: 0.5

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
  
 public class Grappling : MonoBehaviour
@@ -28,10 +27,13 @@ public class Grappling : MonoBehaviour
     private bool grappling;
     private SpringJoint joint; // added for swinging
  
-    private void Start()
-    {
-        pm = GetComponent<PlayerController>();
-    }
+private Rigidbody rb;
+
+private void Start()
+{
+    pm = GetComponent<PlayerController>();
+    rb = GetComponent<Rigidbody>();
+}
  
     private void Update()
     {
@@ -88,17 +90,31 @@ public class Grappling : MonoBehaviour
         joint.massScale = 4.5f;
     }
  
-    public void StopGrapple()
-    {
-        pm.freeze = false;
-        pm.activeGrapple = false; // FIX: was leaving activeGrapple true, blocking movement after landing
- 
-        grappling = false;
-        grapplingCdTimer = grapplingCd;
-        lr.enabled = false;
- 
-        if (joint != null) Destroy(joint); // clean up spring joint
-    }
+   public void StopGrapple()
+{
+    pm.freeze = false;
+    pm.activeGrapple = false;
+
+    grappling = false;
+    grapplingCdTimer = grapplingCd;
+    lr.enabled = false;
+
+    // Capture velocity BEFORE destroying the joint so physics doesn't reset it
+    Vector3 exitVelocity = rb != null ? rb.linearVelocity : Vector3.zero;
+
+    if (joint != null) Destroy(joint);
+
+    // Re-apply the velocity the frame after the joint is gone
+    if (rb != null)
+        StartCoroutine(ApplyExitVelocity(exitVelocity));
+}
+
+private IEnumerator ApplyExitVelocity(Vector3 velocity)
+{
+    yield return null; // wait one frame for joint destruction to settle
+    if (rb != null)
+        rb.linearVelocity = velocity;
+}
  
     public bool IsGrappling()
     {
