@@ -38,6 +38,15 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
     public Transform orientation;
 
+
+    [Header("Health")]
+    private float maxHealth = 15;
+    private float currentHealth = 15;
+
+    [Header("Damage")]
+
+
+
     public MovementState state;
     public TextMeshProUGUI timerText;
 
