@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -26,10 +27,10 @@ public class PlayerController : MonoBehaviour
     private float NextDashTime = 0f;
 
     [Header("Drag")]
-    public float groundDrag = 5f;    // snappy ground stops
-    public float airDrag = 0.5f;     // minimal air resistance, preserves momentum
-    public float wallrunDrag = 0f;   // no drag during wallrun, momentum is king
-    public float grapplingDrag = 0f; // no drag while swinging
+    public float groundDrag = 5f;    
+    public float airDrag = 0.5f;     
+    public float wallrunDrag = 0f;   
+    public float grapplingDrag = 0f; 
 
     [Header("Checking")]
     public Transform groundCheck;
@@ -40,8 +41,8 @@ public class PlayerController : MonoBehaviour
 
 
     [Header("Health")]
-    private float maxHealth = 15;
-    private float currentHealth = 15;
+    public float maxHealth = 15;
+    public float currentHealth = 15;
 
     [Header("Damage")]
 
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
 
     public MovementState state;
     public TextMeshProUGUI timerText;
+    public TextMeshProUGUI healthCounter;
 
     private float secondsCount;
     private int minuteCount;
@@ -80,7 +82,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (activeGrapple)
         {
-            // Let the spring joint do its work unimpeded
+        
             rb.linearDamping = grapplingDrag;
         }
         else if (wallrunning)
@@ -111,6 +113,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        currentHealth = maxHealth;
     }
 
     void OnMove(InputValue value)
@@ -179,6 +182,7 @@ public class PlayerController : MonoBehaviour
     {
         StateHandler();
         UpdateTimerUI();
+        UpdateHealthUI();
     }
 
     public void UpdateTimerUI()
@@ -197,7 +201,10 @@ public class PlayerController : MonoBehaviour
             minuteCount = 0;
         }
     }
-
+    public void UpdateHealthUI()
+    {
+        healthCounter.text = currentHealth.ToString();
+    }
     void FixedUpdate()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
