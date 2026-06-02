@@ -203,7 +203,7 @@ public class PlayerController : MonoBehaviour
     }
     public void UpdateHealthUI()
     {
-        healthCounter.text = currentHealth.ToString();
+        healthCounter.text = "HP:" + currentHealth.ToString();
     }
     void FixedUpdate()
     {
