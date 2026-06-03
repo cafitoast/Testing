@@ -10,6 +10,7 @@ public class EnemyShooting : MonoBehaviour
     public float fireRate = 1f;      
     public float bulletSpeed = 20f;  
     public float timeOfBullet = 2.0f;
+
     private float nextFireTime;
 
     void Update()
@@ -20,7 +21,6 @@ public class EnemyShooting : MonoBehaviour
         {
    
             Vector3 targetDirection = player.position - transform.position;
-            targetDirection.y = 0; 
             transform.rotation = Quaternion.LookRotation(targetDirection);
 
             if (Time.time >= nextFireTime)
@@ -34,7 +34,7 @@ public class EnemyShooting : MonoBehaviour
 
     void ShootProjectile()
     {
-        // Spawn the bullet
+        
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         
         Destroy(bullet, timeOfBullet);

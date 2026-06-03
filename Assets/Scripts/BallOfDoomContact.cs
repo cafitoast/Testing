@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-public class BallContact : MonoBehaviour
+public class BallOfDoomContact : MonoBehaviour
 
 {   
     void Start()
@@ -14,7 +14,7 @@ public class BallContact : MonoBehaviour
             if (other.gameObject.CompareTag("Player"))
             {
                 var playerScript = other.GetComponent<PlayerController>();
-                playerScript.currentHealth -= 1;
+                playerScript.currentHealth -= playerScript.currentHealth;
                 Destroy(gameObject);
         } 
         else if (other.gameObject.CompareTag("Enemy"))

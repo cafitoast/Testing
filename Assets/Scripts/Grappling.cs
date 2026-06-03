@@ -8,6 +8,8 @@ public class Grappling : MonoBehaviour
     public Transform cam;
     public Transform gunTip;
     public LayerMask whatIsGrappleable;
+    public LayerMask whatIsGrappleable2;
+    
     public LineRenderer lr;
  
     [Header("Grappling")]
@@ -55,10 +57,10 @@ private void Start()
         if (grapplingCdTimer > 0) return;
  
         grappling = true;
-        pm.freeze = true;
+    
  
         RaycastHit hit;
-        if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrappleDistance, whatIsGrappleable))
+        if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrappleDistance, whatIsGrappleable + whatIsGrappleable2))
         {
             grapplePoint = hit.point;
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
@@ -72,11 +74,10 @@ private void Start()
         lr.enabled = true;
         lr.SetPosition(1, grapplePoint);
     }
+    
  
     private void ExecuteGrapple()
     {
-        pm.freeze = false;
- 
         // spring joint swing
         joint = pm.gameObject.AddComponent<SpringJoint>();
         joint.autoConfigureConnectedAnchor = false;
@@ -92,19 +93,18 @@ private void Start()
  
    public void StopGrapple()
 {
-    pm.freeze = false;
     pm.activeGrapple = false;
 
     grappling = false;
     grapplingCdTimer = grapplingCd;
     lr.enabled = false;
 
-    // Capture velocity BEFORE destroying the joint so physics doesn't reset it
+    
     Vector3 exitVelocity = rb != null ? rb.linearVelocity : Vector3.zero;
 
     if (joint != null) Destroy(joint);
 
-    // Re-apply the velocity the frame after the joint is gone
+
     if (rb != null)
         StartCoroutine(ApplyExitVelocity(exitVelocity));
 }

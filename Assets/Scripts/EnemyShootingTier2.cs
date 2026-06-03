@@ -2,15 +2,49 @@ using UnityEngine;
 
 public class EnemyShootingTier2 : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Transform player;          
+    public GameObject bullet2Prefab;   
+    public Transform firePoint;       
 
-    // Update is called once per frame
+    
+    public float attackRange = 15f;  
+    public float fireRate = 1f;      
+    public float bulletSpeed = 20f;  
+    public float timeOfBullet = 2.0f;
+    private float nextFireTime;
     void Update()
     {
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= attackRange)
+        {
+   
+            Vector3 targetDirection = player.position - transform.position;
+            transform.rotation = Quaternion.LookRotation(targetDirection);
+
+            if (Time.time >= nextFireTime)
+            {
+                ShootProjectile();
+                nextFireTime = Time.time + fireRate;
+                
+            }
+        }
+    }
+
+    void ShootProjectile()
+    {
+      
+        GameObject bullet2 = Instantiate(bullet2Prefab, firePoint.position, firePoint.rotation);
+        
+    
+        Destroy(bullet2, timeOfBullet);
+        
+        Rigidbody rb = bullet2.GetComponent<Rigidbody>();
+        
+        if (rb != null)
+        {
+            rb.AddForce(firePoint.forward * bulletSpeed, ForceMode.Impulse);
+        }
         
     }
 }

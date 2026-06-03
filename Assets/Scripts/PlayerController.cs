@@ -58,7 +58,6 @@ public class PlayerController : MonoBehaviour
 
     public enum MovementState
     {
-        freeze,
         walking,
         sprinting,
         wallrunning,
@@ -68,19 +67,13 @@ public class PlayerController : MonoBehaviour
     public bool wallrunning;
     public bool climbing;
     public bool climbingPossible;
-    public bool freeze;
+
     public bool activeGrapple;
 
     void StateHandler()
     {
-        if (freeze)
-        {
-            state = MovementState.freeze;
-            moveSpeed = 0;
-            rb.linearVelocity = Vector3.zero;
-            rb.linearDamping = groundDrag;
-        }
-        else if (activeGrapple)
+
+        if (activeGrapple)
         {
         
             rb.linearDamping = grapplingDrag;
@@ -188,7 +181,7 @@ public class PlayerController : MonoBehaviour
     public void UpdateTimerUI()
     {
         secondsCount += Time.deltaTime;
-        timerText.text = hourCount + "h:" + minuteCount + "m:" + (int)secondsCount + "s";
+        timerText.text = "Timer:" + hourCount + "h:" + minuteCount + "m:" + (int)secondsCount + "s";
 
         if (secondsCount >= 60)
         {
@@ -205,6 +198,7 @@ public class PlayerController : MonoBehaviour
     {
         healthCounter.text = "HP:" + currentHealth.ToString();
     }
+    
     void FixedUpdate()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
