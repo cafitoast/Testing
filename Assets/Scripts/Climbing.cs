@@ -2,27 +2,25 @@ using UnityEngine;
 
 public class Climbing : MonoBehaviour
 {
-    // References
+    [Header("References")]
     public PlayerController pm;
     public Transform orientation;
     public Rigidbody rb;
     public LayerMask Wall;
 
-    // Climbing
-    public float climbSpeed;
-    public float maxClimbTime;
+    [Header("Climbing Settings")]
+    public float climbSpeed = 5f;
+    public float maxClimbTime = 2f;
     private float climbTimer;
 
-    // Detection
-    public float detectionLength;
-    public float sphereCastRadius;
-    public float maxWallLookAngle;
+    [Header("Detection")]
+    public float detectionLength = 0.7f;  // Increase this if it feels picky
+    public float sphereCastRadius = 0.3f; // Forgiving bubble size
+    public float maxWallLookAngle = 45f;
     private float wallLookAngle;
 
     private RaycastHit frontWallHit;
     private bool wallFront;
-
-    public float wallPressForce = 50f;
 
     private void Awake()
     {
@@ -42,17 +40,18 @@ public class Climbing : MonoBehaviour
 
     private void WallCheck()
     {
-        wallFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward,
+        // Use orientation forward but flattened to prevent look-angle pitch issues
+        Vector3 projectForward = Vector3.ProjectOnPlane(orientation.forward, Vector3.up).normalized;
+
+        wallFront = Physics.SphereCast(transform.position, sphereCastRadius, projectForward,
                         out frontWallHit, detectionLength, Wall);
 
         wallLookAngle = wallFront
-            ? Vector3.Angle(orientation.forward, -frontWallHit.normal)
+            ? Vector3.Angle(projectForward, -frontWallHit.normal)
             : 0f;
 
-   
         pm.climbingPossible = wallFront && wallLookAngle < maxWallLookAngle;
 
-   
         if (pm.isGrounded)
             climbTimer = maxClimbTime;
     }
@@ -65,9 +64,11 @@ public class Climbing : MonoBehaviour
             return;
         }
 
-        if (wallFront && Input.GetKey(KeyCode.W) && wallLookAngle < maxWallLookAngle)
+        // Changed from Input.GetKey(KeyCode.W) to use your PlayerController's moveY input system value!
+        if (wallFront && pm.moveY > 0.1f && wallLookAngle < maxWallLookAngle)
         {
             if (!pm.climbing && climbTimer > 0) StartClimbing();
+            
             if (climbTimer > 0) climbTimer -= Time.deltaTime;
             if (climbTimer <= 0) StopClimbing();
         }
@@ -91,6 +92,7 @@ public class Climbing : MonoBehaviour
 
     private void ClimbingMovement()
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, climbSpeed, rb.linearVelocity.z);
+        // Keep horizontal momentum, but directly drive vertical speed based on input
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, climbSpeed * pm.moveY, rb.linearVelocity.z);
     }
 }

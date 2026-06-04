@@ -208,9 +208,15 @@ public class PlayerController : MonoBehaviour
         if (activeGrapple) return;
 
         Vector3 movement = orientation.forward * moveY + orientation.right * moveX;
-        if (isGrounded)
-            rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
-        else
-            rb.MovePosition(rb.position + movement * moveSpeed * airMultiplier * Time.fixedDeltaTime);
+        movement.Normalize(); 
+
+        float speed = isGrounded ? moveSpeed : moveSpeed * airMultiplier;
+            
+
+        Vector3 desiredVelocity = movement * speed;
+        Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        Vector3 velocityDiff = desiredVelocity - currentVelocity;
+
+        rb.AddForce(velocityDiff, ForceMode.VelocityChange);
     }
 }
