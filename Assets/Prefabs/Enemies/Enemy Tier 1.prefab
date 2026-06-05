@@ -145,7 +145,7 @@ MonoBehaviour:
   player: {fileID: 0}
   bulletPrefab: {fileID: 9154841249523432173, guid: 040c0da11d3206846af94d1a014c9059, type: 3}
   firePoint: {fileID: 3442008554811777597}
-  attackRange: 15
+  attackRange: 50
   fireRate: 1
   bulletSpeed: 20
   timeOfBullet: 2

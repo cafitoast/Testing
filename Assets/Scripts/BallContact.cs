@@ -15,11 +15,8 @@ public class BallContact : MonoBehaviour
             {
                 var playerScript = other.GetComponent<PlayerController>();
                 playerScript.currentHealth -= 1;
-                Destroy(gameObject);
-        } 
-        else if (other.gameObject.CompareTag("Enemy"))
-        {
+        }    
             Destroy(gameObject);
-        }
+
     }
 }
