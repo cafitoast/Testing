@@ -18,6 +18,7 @@ public class BallOfDoomContact : MonoBehaviour
                 Destroy(gameObject);
         } 
         else if (other.gameObject.CompareTag("Enemy"))
+        Destroy(gameObject);
         {
             Destroy(gameObject);
         }

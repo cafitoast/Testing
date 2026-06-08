@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -43,6 +44,8 @@ public class PlayerController : MonoBehaviour
     [Header("Health")]
     public float maxHealth = 15;
     public float currentHealth = 15;
+    
+    public static float  lives = 3;
 
     [Header("Damage")]
 
@@ -51,10 +54,11 @@ public class PlayerController : MonoBehaviour
     public MovementState state;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI healthCounter;
+    public TextMeshProUGUI livesCounter;
 
-    private float secondsCount;
-    private int minuteCount;
-    private int hourCount;
+    public static float secondsCount;
+    public static float minuteCount;
+    public static float hourCount;
 
     public enum MovementState
     {
@@ -84,6 +88,16 @@ public class PlayerController : MonoBehaviour
             moveSpeed = wallrunSpeed;
             rb.linearDamping = wallrunDrag;
         }
+          else if (climbing) 
+        {
+            rb.linearDamping = 0f;
+        }
+        else if (wallrunning)
+        {
+        state = MovementState.wallrunning;
+        moveSpeed = wallrunSpeed;
+        rb.linearDamping = wallrunDrag;
+    }
         else if (isGrounded && Input.GetKey(sprintKey))
         {
             state = MovementState.sprinting;
@@ -107,8 +121,16 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         currentHealth = maxHealth;
-    }
+        
 
+        
+    }
+    private void Die()
+{
+    UnityEngine.SceneManagement.SceneManager.LoadScene(
+    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    lives -= 1; 
+}
     void OnMove(InputValue value)
     {
         Vector2 moveInput = value.Get<Vector2>();
@@ -173,10 +195,18 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+       
         StateHandler();
         UpdateTimerUI();
         UpdateHealthUI();
-    }
+        UpdateDeathCounter();
+        if (currentHealth <= 0)
+        Die();
+        if(lives <= 0){
+        SceneManager.LoadScene("DeathScreen");
+        lives = 1;
+        }
+        }
 
     public void UpdateTimerUI()
     {
@@ -197,6 +227,11 @@ public class PlayerController : MonoBehaviour
     public void UpdateHealthUI()
     {
         healthCounter.text = "HP:" + currentHealth.ToString();
+    }
+     public void UpdateDeathCounter()
+    {
+        livesCounter.text = "Lives" + lives.ToString();
+
     }
     
     void FixedUpdate()

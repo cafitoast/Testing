@@ -43,9 +43,10 @@ public class Climbing : MonoBehaviour
         // Use orientation forward but flattened to prevent look-angle pitch issues
         Vector3 projectForward = Vector3.ProjectOnPlane(orientation.forward, Vector3.up).normalized;
 
-        wallFront = Physics.SphereCast(transform.position, sphereCastRadius, projectForward,
-                        out frontWallHit, detectionLength, Wall);
+        Vector3 castOrigin = transform.position + (Vector3.down * 0.5f); 
 
+        wallFront = Physics.SphereCast(castOrigin, sphereCastRadius, projectForward,
+                out frontWallHit, detectionLength, Wall);
         wallLookAngle = wallFront
             ? Vector3.Angle(projectForward, -frontWallHit.normal)
             : 0f;
@@ -92,7 +93,7 @@ public class Climbing : MonoBehaviour
 
     private void ClimbingMovement()
     {
-        // Keep horizontal momentum, but directly drive vertical speed based on input
+        
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, climbSpeed * pm.moveY, rb.linearVelocity.z);
     }
 }

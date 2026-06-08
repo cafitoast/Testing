@@ -5,9 +5,30 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/LevelOne.unity
+    guid: be96ee875a8489a41af956b4841ff4c8
+  - enabled: 1
+    path: Assets/Scenes/LevelTwo.unity
+    guid: a15331dff1fb67645b21a9dea99fc3a8
+  - enabled: 1
+    path: Assets/Scenes/DeathScreen.unity
+    guid: fa42c03486d3169408bfeaf5a699eac1
+  - enabled: 1
+    path: Assets/Scenes/Spawn.unity
+    guid: 7f56881f789f6f948907619ad64d7f5d
+  - enabled: 1
+    path: Assets/Scenes/LevelThree.unity
+    guid: bc1336a92aa997f4aa07b9167d83d3bb
+  - enabled: 1
+    path: Assets/Scenes/MyEyesFeelHeavy.unity
+    guid: 85cf1748fed4f9c45b0c7ac0b0b4ddac
+  - enabled: 1
+    path: Assets/Scenes/FinalFight.unity
+    guid: 6829443f49477b945a45b9182b275c85
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

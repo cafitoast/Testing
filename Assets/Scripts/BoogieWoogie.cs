@@ -4,18 +4,24 @@ public class BoogieWoogie : MonoBehaviour
 {
     [Header("Ability Status")]
     [SerializeField] private bool hasAbility = false;
-    // Assign these in the Unity Inspector
+
     [Header("Raycast Settings")]
-    [SerializeField] private Transform playerCamera; 
+    [SerializeField] private Transform playerCamera;
     [SerializeField] private float maxDistance = 50f;
     [SerializeField] private LayerMask interactableLayer;
 
     [Header("Input")]
     [SerializeField] private KeyCode swapKey = KeyCode.Mouse2;
 
-    void Update()
+    private Rigidbody playerRb;
+
+    private void Start()
     {
-        // Check for the swap input key
+        playerRb = GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
         if (Input.GetKeyDown(swapKey) && hasAbility)
         {
             TrySwapPosition();
@@ -24,24 +30,63 @@ public class BoogieWoogie : MonoBehaviour
 
     private void TrySwapPosition()
     {
+        // Find camera if not assigned
+        if (playerCamera == null)
         {
-            playerCamera = Camera.main.transform;
+            Camera cam = Camera.main;
+
+            if (cam == null)
+            {
+                Debug.LogError("No Main Camera found!");
+                return;
+            }
+
+            playerCamera = cam.transform;
         }
 
         RaycastHit hit;
-        
-        // Cast a ray from the center of the camera forward
-        if (Physics.Raycast(playerCamera.position, playerCamera.forward, out hit, maxDistance, interactableLayer))
+
+        if (Physics.Raycast(
+                playerCamera.position,
+                playerCamera.forward,
+                out hit,
+                maxDistance,
+                interactableLayer))
         {
             GameObject targetObject = hit.collider.gameObject;
-            
-            Vector3 playerCurrentPosition = transform.position;
-            transform.position = targetObject.transform.position;
-            targetObject.transform.position = playerCurrentPosition;
-            
-            Debug.Log($"Swapped positions with {targetObject.name}!");
+
+            // Don't swap with yourself
+            if (targetObject == gameObject)
+                return;
+
+            Rigidbody targetRb = targetObject.GetComponent<Rigidbody>();
+
+            // Stop movement before swapping
+            if (playerRb != null)
+                playerRb.linearVelocity = Vector3.zero;
+
+            if (targetRb != null)
+                targetRb.linearVelocity = Vector3.zero;
+
+            // Store positions
+            Vector3 playerPosition = transform.position;
+            Vector3 targetPosition = targetObject.transform.position;
+
+            // Swap positions
+            if (playerRb != null)
+                playerRb.MovePosition(targetPosition);
+            else
+                transform.position = targetPosition;
+
+            if (targetRb != null)
+                targetRb.MovePosition(playerPosition);
+            else
+                targetObject.transform.position = playerPosition;
+
+            Debug.Log($"Swapped with {targetObject.name}");
         }
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("AbilityItem"))
@@ -49,7 +94,7 @@ public class BoogieWoogie : MonoBehaviour
             hasAbility = true;
             Debug.Log("Picked up swap ability!");
 
-            Destroy(other.gameObject); 
+            Destroy(other.gameObject);
         }
     }
 }

@@ -28,6 +28,8 @@ public class WallRunning : MonoBehaviour
     private PlayerController pm;
     private Rigidbody rb;
 
+    
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -78,7 +80,7 @@ public class WallRunning : MonoBehaviour
             if (!pm.wallrunning)
                 StartWallRun();
 
-            // Mid wall-run jump
+            
             if (Input.GetKeyDown(KeyCode.Space))
                 WallJump();
         }
@@ -89,35 +91,48 @@ public class WallRunning : MonoBehaviour
         }
     }
 
-    private void StartWallRun()
-    {
-        pm.wallrunning = true;
-        rb.useGravity = false;
-        wallRunTimer = maxWallRunTime;
-    }
+  private void StartWallRun()
+{
+    pm.wallrunning = true;
+    rb.useGravity = false;
+    wallRunTimer = maxWallRunTime;
+    Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+    Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
 
-    private void WallRunningMovement()
-    {
-        wallRunTimer -= Time.fixedDeltaTime;
-        if (wallRunTimer <= 0)
-        {
-            StopWallRun();
-            return;
-        }
+    if ((orientation.forward - wallForward).magnitude >
+        (orientation.forward - -wallForward).magnitude)
+        wallForward = -wallForward;
 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, -2f, rb.linearVelocity.z);
+    float currentSpeed = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).magnitude;
+    float entrySpeed = Mathf.Max(currentSpeed, pm.wallrunSpeed); // don't slow the player down
+    rb.linearVelocity = new Vector3(
+        wallForward.x * entrySpeed,
+        rb.linearVelocity.y,
+        wallForward.z * entrySpeed
+    );
+}
+private void WallRunningMovement()
+{
+    wallRunTimer -= Time.fixedDeltaTime;
+    if (wallRunTimer <= 0) { StopWallRun(); return; }
 
-        Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
-        Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
+    // Smoothly ramp down vertical velocity instead of snapping to -2
+    float targetY = -2f;
+    float newY = Mathf.Lerp(rb.linearVelocity.y, targetY, Time.fixedDeltaTime * 10f);
 
-        if ((orientation.forward - wallForward).magnitude >
-            (orientation.forward - -wallForward).magnitude)
-        {
-            wallForward = -wallForward;
-        }
+    Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
+    Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
 
-        rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
-    }
+    if ((orientation.forward - wallForward).magnitude >
+        (orientation.forward - -wallForward).magnitude)
+        wallForward = -wallForward;
+
+    Vector3 targetVelocity = wallForward * pm.wallrunSpeed;
+    Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+    Vector3 blended = Vector3.Lerp(currentHorizontal, targetVelocity, Time.fixedDeltaTime * 8f);
+
+    rb.linearVelocity = new Vector3(blended.x, newY, blended.z);
+}
 
     private void WallJump()
     {
