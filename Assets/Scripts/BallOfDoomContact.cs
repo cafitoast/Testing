@@ -2,8 +2,11 @@
 using UnityEngine;
 
 public class BallOfDoomContact : MonoBehaviour
+{
+    public AudioSource audioSource; 
 
-{   
+    public AudioClip soundEffectClip;
+   
     void Start()
     {
         

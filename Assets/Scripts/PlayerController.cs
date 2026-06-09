@@ -1,10 +1,8 @@
-using System;
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
@@ -16,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed;
     public float sprintSpeed;
     public KeyCode sprintKey = KeyCode.LeftShift;
+    public KeyCode Restart = KeyCode.R;
     public float wallrunSpeed;
 
     [Header("Jumping")]
@@ -42,8 +41,8 @@ public class PlayerController : MonoBehaviour
 
 
     [Header("Health")]
-    public float maxHealth = 15;
-    public float currentHealth = 15;
+    public float maxHealth = 10;
+    public float currentHealth = 10;
     
     public static float  lives = 3;
 
@@ -56,9 +55,12 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI healthCounter;
     public TextMeshProUGUI livesCounter;
 
-    public static float secondsCount;
-    public static float minuteCount;
-    public static float hourCount;
+    public  float secondsCount;
+    public  int minuteCount;
+    public  int hourCount;
+    public AudioSource audioSource; 
+
+    public AudioClip soundEffectClip; 
 
     public enum MovementState
     {
@@ -76,7 +78,6 @@ public class PlayerController : MonoBehaviour
 
     void StateHandler()
     {
-
         if (activeGrapple)
         {
         
@@ -121,17 +122,23 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         currentHealth = maxHealth;
-        
-
-        
+        LoadSavedTimer();
     }
     private void Die()
 {
-    UnityEngine.SceneManagement.SceneManager.LoadScene(
-    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-    lives -= 1; 
-}
-    void OnMove(InputValue value)
+    lives -= 1;
+    SaveCurrentTimer(); 
+
+    if (lives <= 0)
+    {
+        lives = 3; 
+        SceneManager.LoadScene("DeathScreen");
+    }
+    else
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}    void OnMove(InputValue value)
     {
         Vector2 moveInput = value.Get<Vector2>();
         moveX = moveInput.x;
@@ -162,6 +169,10 @@ public class PlayerController : MonoBehaviour
                 dashDirection = transform.forward;
 
             rb.AddForce(dashDirection * dashForce, ForceMode.Impulse);
+        }
+        if (audioSource != null && soundEffectClip != null)
+        {
+        audioSource.PlayOneShot(soundEffectClip);
         }
     }
 
@@ -202,12 +213,14 @@ public class PlayerController : MonoBehaviour
         UpdateDeathCounter();
         if (currentHealth <= 0)
         Die();
-        if(lives <= 0){
-        SceneManager.LoadScene("DeathScreen");
-        lives = 1;
-        }
-        }
-
+        SaveCurrentTimer();
+        if (Input.GetKeyDown(Restart))
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    
+  
+}
     public void UpdateTimerUI()
     {
         secondsCount += Time.deltaTime;
@@ -224,6 +237,22 @@ public class PlayerController : MonoBehaviour
             minuteCount = 0;
         }
     }
+        public void SaveCurrentTimer()
+    {
+        PlayerPrefs.SetFloat("SavedSeconds", secondsCount);
+        PlayerPrefs.SetInt("SavedMinutes", minuteCount);
+        PlayerPrefs.SetInt("SavedHours", hourCount);
+        PlayerPrefs.Save();
+    }
+    public void LoadSavedTimer()
+    {
+    if (PlayerPrefs.HasKey("SavedSeconds"))
+    {
+        secondsCount = PlayerPrefs.GetFloat("SavedSeconds", 0f);
+        minuteCount = PlayerPrefs.GetInt("SavedMinutes", 0);
+        hourCount = PlayerPrefs.GetInt("SavedHours", 0);
+    }
+}
     public void UpdateHealthUI()
     {
         healthCounter.text = "HP:" + currentHealth.ToString();
@@ -231,9 +260,7 @@ public class PlayerController : MonoBehaviour
      public void UpdateDeathCounter()
     {
         livesCounter.text = "Lives" + lives.ToString();
-
     }
-    
     void FixedUpdate()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);

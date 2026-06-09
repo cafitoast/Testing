@@ -30,6 +30,9 @@ public class Grappling : MonoBehaviour
     private SpringJoint joint; // added for swinging
  
 private Rigidbody rb;
+    public AudioSource audioSource; 
+
+    public AudioClip soundEffectClip; 
 
 private void Start()
 {
@@ -60,6 +63,7 @@ private void Start()
     
  
         RaycastHit hit;
+        audioSource.PlayOneShot(soundEffectClip);
         if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrappleDistance, whatIsGrappleable + whatIsGrappleable2))
         {
             grapplePoint = hit.point;

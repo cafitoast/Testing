@@ -20,9 +20,9 @@ public class Door : MonoBehaviour
 
     private void LoadNewScene()
     {
-        if (!string.IsNullOrEmpty("FinalLevel"))
+        if (!string.IsNullOrEmpty("FinalFight"))
         {
-            SceneManager.LoadScene("FinalLevel");
+            SceneManager.LoadScene("FinalFight");
         }
         else
         {

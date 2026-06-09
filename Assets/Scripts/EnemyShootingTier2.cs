@@ -12,6 +12,11 @@ public class EnemyShootingTier2 : MonoBehaviour
     public float bulletSpeed = 20f;  
     public float timeOfBullet = 2.0f;
     private float nextFireTime;
+      public LayerMask obstacleMask; 
+          public AudioSource audioSource; 
+
+    public AudioClip soundEffectClip;
+
     void Update()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
@@ -25,12 +30,28 @@ public class EnemyShootingTier2 : MonoBehaviour
             if (Time.time >= nextFireTime)
             {
                 ShootProjectile();
+                if (audioSource != null && soundEffectClip != null)
+                {
+                audioSource.PlayOneShot(soundEffectClip);
+                }
                 nextFireTime = Time.time + fireRate;
                 
             }
         }
     }
+    bool HasLineOfSight()
+    {
+        Vector3 directionToPlayer = player.position - firePoint.position;
+        float distanceToPlayer = directionToPlayer.magnitude;
 
+        if (Physics.Raycast(firePoint.position, directionToPlayer.normalized, out RaycastHit hit, distanceToPlayer, obstacleMask))
+        {
+            // something is blocking the path
+            return false;
+        }
+
+        return true;
+    }
     void ShootProjectile()
     {
       

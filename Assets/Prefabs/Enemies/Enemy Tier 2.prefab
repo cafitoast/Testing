@@ -207,3 +207,6 @@ MonoBehaviour:
   fireRate: 1
   bulletSpeed: 20
   timeOfBullet: 2
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 136

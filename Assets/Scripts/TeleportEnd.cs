@@ -20,9 +20,9 @@ public class TeleportEnd : MonoBehaviour
 
     private void LoadNewScene()
     {
-        if (!string.IsNullOrEmpty("TheEnd"))
+        if (!string.IsNullOrEmpty("MyEyesFeelHeavy"))
         {
-            SceneManager.LoadScene("TheEnd");
+            SceneManager.LoadScene("MyEyesFeelHeavy");
         }
         else
         {

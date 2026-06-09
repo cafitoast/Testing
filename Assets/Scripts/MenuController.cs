@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 public class MenuController : MonoBehaviour
 {
-    // This function runs when our button is clicked
-    public void ClickedTheButton()
+    public void GoToSpawn()
     {
-            SceneManager.LoadScene("Spawn");
-        }
-
-
+        SceneManager.LoadScene("Spawn");
+    }
 }

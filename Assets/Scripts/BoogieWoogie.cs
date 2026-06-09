@@ -15,6 +15,9 @@ public class BoogieWoogie : MonoBehaviour
 
     private Rigidbody playerRb;
 
+    public AudioSource audioSource; 
+
+    public AudioClip soundEffectClip; 
     private void Start()
     {
         playerRb = GetComponent<Rigidbody>();
@@ -25,6 +28,10 @@ public class BoogieWoogie : MonoBehaviour
         if (Input.GetKeyDown(swapKey) && hasAbility)
         {
             TrySwapPosition();
+        if (audioSource != null && soundEffectClip != null)
+        {
+        audioSource.PlayOneShot(soundEffectClip);
+        }
         }
     }
 
